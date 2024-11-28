@@ -1,0 +1,141 @@
+<div class="container mt-4">
+  <h1 class="text-center">{{ title }}</h1>
+  <p class="text-center">{{ description }}</p>
+
+  <!-- Sorting Buttons -->
+  <div class="mb-3 text-center">
+    <button class="btn btn-primary me-2" (click)="sortCards('rank')">Sort by Rank</button>
+    <button class="btn btn-secondary me-2" (click)="sortCards('suit')">Sort by Suit</button>
+    <button class="btn btn-success me-2" (click)="showAddCardForm()" *ngIf="!showForm">Add New Card</button>
+    <button class="btn btn-info" (click)="loadCards()">Reload Cards</button>
+  </div>
+
+  <!-- Search Box -->
+  <input type="text" 
+         class="form-control mb-3" 
+         placeholder="Search Cards" 
+         [(ngModel)]="searchTerm" 
+         *ngIf="cards.length > 0" />
+
+  <!-- Display Cards -->
+  <div class="row">
+    <div class="col-md-4 mb-3 animate__animated animate__fadeIn" 
+         *ngFor="let card of filteredCards()">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">{{ card.suit }}</h5>
+          <p class="card-text">{{ card.name }} (Rank: {{ card.rank }})</p>
+          <button class="btn btn-warning me-2" (click)="editCard(card)">Edit</button>
+          <button class="btn btn-danger" (click)="deleteCard(card.id)">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card Details Dialog -->
+  <div class="modal" tabindex="-1" *ngIf="selectedCard" style="display: block;">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Details of {{ selectedCard?.name }}</h5>
+          <button type="button" class="btn-close" aria-label="Close" (click)="closeDialog()"></button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Suit:</strong> {{ selectedCard?.suit }}</p>
+          <p><strong>Rank:</strong> {{ selectedCard?.rank }}</p>
+          <p><strong>History:</strong> {{ selectedCard?.history }}</p>
+          <p><strong>Value:</strong> {{ selectedCard?.value }}</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeDialog()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Card Form -->
+  <div class="modal" tabindex="-1" *ngIf="showForm" style="display: block;">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ isEditMode ? 'Edit Card' : 'Add New Card' }}</h5>
+          <button type="button" class="btn-close" aria-label="Close" (click)="closeForm()"></button>
+        </div>
+        <div class="modal-body">
+          <form #cardForm="ngForm" (ngSubmit)="saveCard()">
+            <div class="mb-3">
+              <label for="suit" class="form-label">Suit</label>
+              <input type="text" 
+                     id="suit" 
+                     class="form-control" 
+                     [(ngModel)]="newCard.suit" 
+                     name="suit" 
+                     required 
+                     #suit="ngModel">
+              <div class="alert alert-danger mt-2" 
+                   *ngIf="suit.invalid && (suit.dirty || suit.touched)">
+                This field is required.
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="name" class="form-label">Name</label>
+              <input type="text" 
+                     id="name" 
+                     class="form-control" 
+                     [(ngModel)]="newCard.name" 
+                     name="name" 
+                     required 
+                     #name="ngModel">
+              <div class="alert alert-danger mt-2" 
+                   *ngIf="name.invalid && (name.dirty || name.touched)">
+                This field is required.
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="rank" class="form-label">Rank</label>
+              <input type="number" 
+                     id="rank" 
+                     class="form-control" 
+                     [(ngModel)]="newCard.rank" 
+                     name="rank" 
+                     required 
+                     #rank="ngModel">
+              <div class="alert alert-danger mt-2" 
+                   *ngIf="rank.invalid && (rank.dirty || rank.touched)">
+                This field is required.
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="history" class="form-label">History</label>
+              <input type="text" 
+                     id="history" 
+                     class="form-control" 
+                     [(ngModel)]="newCard.history" 
+                     name="history">
+            </div>
+            <div class="mb-3">
+              <label for="value" class="form-label">Value</label>
+              <input type="text" 
+                     id="value" 
+                     class="form-control" 
+                     [(ngModel)]="newCard.value" 
+                     name="value">
+            </div>
+            <button type="submit" 
+                    class="btn btn-primary" 
+                    [disabled]="isLoading || cardForm.invalid">
+              {{ isLoading ? 'Processing...' : (isEditMode ? 'Edit Card' : 'Add Card') }}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+</div>
